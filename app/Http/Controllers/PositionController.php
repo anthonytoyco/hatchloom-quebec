@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Position;
+use App\Models\SideHustle;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -26,6 +27,8 @@ class PositionController extends Controller
         $data['status'] = $data['status'] ?? 'OPEN';
 
         $position = Position::create($data);
+        $this->syncOpenPositionsFlag($position->side_hustle_id);
+
         return response()->json($position, 201);
     }
 
@@ -40,6 +43,28 @@ class PositionController extends Controller
         ]);
 
         $position->update($data);
+        $this->syncOpenPositionsFlag($position->side_hustle_id);
+
         return response()->json($position);
+    }
+
+    public function destroy($id)
+    {
+        $position = Position::findOrFail($id);
+        $sideHustleId = $position->side_hustle_id;
+        $position->delete();
+        $this->syncOpenPositionsFlag($sideHustleId);
+
+        return response()->json(['message' => 'Position deleted']);
+    }
+
+    private function syncOpenPositionsFlag(int $sideHustleId): void
+    {
+        $hasOpen = Position::where('side_hustle_id', $sideHustleId)
+            ->where('status', 'OPEN')
+            ->exists();
+
+        SideHustle::where('id', $sideHustleId)
+            ->update(['has_open_positions' => $hasOpen]);
     }
 }

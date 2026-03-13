@@ -8,6 +8,7 @@ use App\Models\BusinessModelCanvas;
 use App\Models\Team;
 use App\Models\Sandbox;
 use Illuminate\Validation\Rule;
+use App\Models\Position;
 
 class SideHustleController extends Controller
 {
@@ -86,5 +87,24 @@ class SideHustleController extends Controller
         $sideHustle->delete();
 
         return response()->json(['message' => 'SideHustle deleted successfully']);
+    }
+
+    public function launchpadSummary(Request $request)
+    {
+        $studentId = $request->user()->id;
+
+        $sandboxCount     = Sandbox::where('student_id', $studentId)->count();
+        $inTheLabCount    = SideHustle::where('student_id', $studentId)->where('status', 'IN_THE_LAB')->count();
+        $liveVentureCount = SideHustle::where('student_id', $studentId)->where('status', 'LIVE_VENTURE')->count();
+        $sideHustles      = SideHustle::where('student_id', $studentId)
+            ->with(['positions' => fn($q) => $q->where('status', 'OPEN')])
+            ->get();
+
+        return response()->json([
+            'sandbox_count'       => $sandboxCount,
+            'in_the_lab_count'    => $inTheLabCount,
+            'live_venture_count'  => $liveVentureCount,
+            'side_hustles'        => $sideHustles,
+        ]);
     }
 }
