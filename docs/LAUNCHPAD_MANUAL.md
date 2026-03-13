@@ -1,10 +1,4 @@
-# LaunchPad Service — Installation and Operations Manual
-
-**Project:** Hatchloom — Team Quebec (Q2)
-**Version:** 1.0.0
-**Last updated:** 2026-03-13
-
-This manual covers everything needed to install, configure, run, and deploy the LaunchPad service on a new machine. Follow each section in order on a fresh system.
+# LaunchPad Service - Installation and Operations Manual
 
 ---
 
@@ -34,8 +28,6 @@ This manual covers everything needed to install, configure, run, and deploy the 
 | PHP | 8.2 | Only needed to run `composer install` outside Sail |
 | Composer | 2.x | Only needed to install Sail before first run |
 
-> **Note:** Sail runs PHP 8.2, PostgreSQL 18, and all other dependencies inside Docker containers. You do **not** need PHP or PostgreSQL installed on your host machine if you bootstrap via Sail.
-
 ### Production
 
 | Dependency | Minimum Version | Notes |
@@ -43,7 +35,7 @@ This manual covers everything needed to install, configure, run, and deploy the 
 | Docker Engine | 24.x | Docker Desktop or Docker CE on Linux |
 | Docker Compose | v2.x | |
 
-No other server software (PHP, Nginx, PostgreSQL) needs to be installed on the host — everything runs inside containers.
+No other server software (PHP, Nginx, PostgreSQL) needs to be installed on the host - everything runs inside containers.
 
 ---
 
@@ -52,7 +44,7 @@ No other server software (PHP, Nginx, PostgreSQL) needs to be installed on the h
 Clone the repository and enter the project directory:
 
 ```bash
-git clone <repository-url> hatchloom-quebec
+git clone https://github.com/anthonytoyco/hatchloom-launchpad hatchloom-quebec
 cd hatchloom-quebec
 ```
 
@@ -83,7 +75,7 @@ DB_USERNAME=sail
 DB_PASSWORD=password
 ```
 
-The `APP_KEY` is generated automatically in the next step — leave it blank for now.
+The `APP_KEY` is generated automatically in the next step - leave it blank for now.
 
 ### 3.3 Full environment variable reference
 
@@ -119,8 +111,8 @@ composer install
 ```
 
 This starts:
-- `laravel.test` — PHP 8.2 application container (port 80)
-- `pgsql` — PostgreSQL 18 container (port 5432)
+- `laravel.test` - PHP 8.2 application container (port 80)
+- `pgsql` - PostgreSQL 18 container (port 5432)
 
 Wait a few seconds for both containers to become healthy.
 
@@ -288,7 +280,7 @@ This will:
 ### 6.4 Verify the deployment
 
 ```bash
-# Health check — should return 401 (API is live, Sanctum blocking unauthenticated)
+# Health check - should return 401 (API is live, Sanctum blocking unauthenticated)
 curl http://localhost:8080/api/launchpad/summary
 
 # Check container logs
@@ -327,7 +319,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod up --build -d
 |---|---|---|---|
 | `APP_NAME` | No | `Laravel` | Application display name |
 | `APP_ENV` | Yes | `local` | `local` for development, `production` for production |
-| `APP_KEY` | **Yes** | — | Base64-encoded 32-byte key. Generate with `php artisan key:generate` |
+| `APP_KEY` | **Yes** | - | Base64-encoded 32-byte key. Generate with `php artisan key:generate` |
 | `APP_DEBUG` | No | `true` | Set to `false` in production |
 | `APP_URL` | No | `http://localhost` | Full URL including port if non-standard |
 
@@ -418,119 +410,3 @@ curl -X POST http://localhost/api/login \
 | `DELETE` | `/api/positions/{id}` | Delete position (owner only) |
 
 For full request/response schemas see [`docs/LAUNCHPAD_API_DOCUMENTATION.md`](LAUNCHPAD_API_DOCUMENTATION.md).
-
----
-
-## 9. Troubleshooting
-
-### `APP_KEY` is missing or invalid
-
-**Symptom:** `RuntimeException: No application encryption key has been specified.`
-
-**Fix:**
-```bash
-# Development
-./vendor/bin/sail artisan key:generate
-
-# Production — add to .env.prod
-echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env.prod
-```
-
----
-
-### Database connection refused
-
-**Symptom:** `SQLSTATE[08006] ... Connection refused`
-
-**Fix — Development:** Ensure Sail is running:
-```bash
-./vendor/bin/sail up -d
-# Wait 5–10 seconds for PostgreSQL to become ready, then:
-./vendor/bin/sail artisan migrate
-```
-
-**Fix — Production:** Check that the `db` health check passed:
-```bash
-docker compose -f docker-compose.prod.yml ps
-# The db container should show "healthy"
-```
-
----
-
-### Migrations fail: relation already exists
-
-**Symptom:** `SQLSTATE[42P07]: Duplicate table`
-
-**Fix:** The database already has the tables from a previous run. Either use a fresh database or run:
-```bash
-./vendor/bin/sail artisan migrate:fresh
-```
-
-> **Warning:** `migrate:fresh` drops all tables and re-runs all migrations. Do not use in production.
-
----
-
-### Production container exits immediately
-
-**Symptom:** `docker compose logs app` shows the container restarting.
-
-**Cause:** Most commonly a missing `APP_KEY` or unreachable database.
-
-**Fix:**
-1. Confirm `APP_KEY` is set in `.env.prod`
-2. Confirm `db` container is healthy: `docker compose -f docker-compose.prod.yml ps`
-3. Check the full log: `docker compose -f docker-compose.prod.yml logs --tail=50 app`
-
----
-
-### `401 Unauthenticated` on every LaunchPad request
-
-This is expected for unauthenticated requests — the API is working correctly. To make authenticated requests:
-
-1. Register a user via `POST /register` (Auth service)
-2. Log in via `POST /login` to receive a bearer token
-3. Include `Authorization: Bearer {token}` on every LaunchPad request
-
----
-
-### `403 Forbidden` on update or delete
-
-**Symptom:** A mutating request returns `{ "message": "Forbidden." }` or a similar ownership error.
-
-**Cause:** The authenticated user does not own the resource being modified. LaunchPad enforces ownership on every write operation by comparing the resource's `student_id` (or the parent SideHustle's `student_id`) to the token holder's user ID.
-
-**Fix:** Confirm you are using the bearer token that belongs to the student who created the resource.
-
----
-
-### Position status update returns 422
-
-**Symptom:** `PUT /api/positions/{id}` with a `status` change returns `422 Unprocessable Content`.
-
-**Cause:** The position is already in a terminal state (`FILLED` or `CLOSED`). LaunchPad enforces a one-way state machine — once a position leaves `OPEN` its status cannot be changed further.
-
-**Fix:** This is intentional behaviour. If the position needs to be re-opened, delete it and create a new one.
-
----
-
-### Tests fail — `could not find driver`
-
-**Symptom:** `PDOException: could not find driver (pgsql)`
-
-**Fix:** You are running `php artisan test` outside of Sail. Always run tests through Sail:
-```bash
-./vendor/bin/sail artisan test
-```
-
----
-
-### `POST /api/sidehustles/{id}/launch` returns 404
-
-**Symptom:** Launching a sandbox returns `404 Not Found`.
-
-**Cause:** The `{id}` in the URL does not match an existing sandbox, or it belongs to a different user.
-
-**Fix:**
-1. Confirm the sandbox exists: `GET /api/sandboxes/{id}`
-2. Confirm you are authenticated as the sandbox owner
-3. If the sandbox was deleted, create a new one before launching

@@ -60,7 +60,7 @@ jobs:
       - name: Install Node dependencies and build frontend assets
         run: npm ci && npm run build
 
-      - name: Run PHPUnit tests — LaunchPad service
+      - name: Run PHPUnit tests - LaunchPad service
         run: php artisan test --filter=LaunchPad
 
   # ---------------------------------------------------------------------------

@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // Demo student — Screen 240 (Compound Butter Co.)
+        // Demo student - Screen 240 (Compound Butter Co.)
         $student = User::factory()->create([
             'name'  => 'Demo Student',
             'email' => 'student@hatchloom.dev',

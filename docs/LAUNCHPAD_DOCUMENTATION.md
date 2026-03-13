@@ -1,8 +1,4 @@
-# LaunchPad Service — System Documentation
-
-**Project:** Hatchloom — Team Quebec (Q2)
-**Version:** 1.0.0
-**Stack:** Laravel 12 · PHP 8.2 · PostgreSQL 18 · Laravel Sanctum · PHPUnit
+# LaunchPad Service - System Documentation
 
 [GitHub Link](https://github.com/anthonytoyco/hatchloom-launchpad)
 
@@ -35,7 +31,7 @@ LaunchPad exposes five functional modules through a REST API:
 | **Team** | Manage venture team membership (add/remove members with roles) |
 | **Position** | Define open roles on a venture; flag syncs automatically with the SideHustle |
 
-All endpoints sit behind `auth:sanctum` middleware — no unauthenticated access is possible.
+All endpoints sit behind `auth:sanctum` middleware - no unauthenticated access is possible.
 
 ---
 
@@ -43,7 +39,7 @@ All endpoints sit behind `auth:sanctum` middleware — no unauthenticated access
 
 ### Laravel 12 + PHP 8.2
 
-Laravel provides the routing, validation, ORM (Eloquent), and service container used throughout LaunchPad. Controller-centric design is used deliberately — the domain logic is simple CRUD with a few lifecycle guards, so the overhead of a full Service/Repository layer is avoided.
+Laravel provides the routing, validation, ORM (Eloquent), and service container used throughout LaunchPad. Controller-centric design is used deliberately - the domain logic is simple CRUD with a few lifecycle guards, so the overhead of a full Service/Repository layer is avoided.
 
 ### PostgreSQL 18
 
@@ -51,7 +47,7 @@ A single shared PostgreSQL instance serves all three sub-packs (Q1 Auth, Q2 Laun
 
 ### Laravel Sanctum (Token Authentication)
 
-Sanctum issues API tokens validated on every LaunchPad request. All ownership decisions compare the resource's `student_id` column against `$request->user()->id` — clients never send user IDs to assert identity. This prevents ownership spoofing.
+Sanctum issues API tokens validated on every LaunchPad request. All ownership decisions compare the resource's `student_id` column against `$request->user()->id` - clients never send user IDs to assert identity. This prevents ownership spoofing.
 
 ### Inline Ownership Guards (Manual 403)
 
@@ -73,82 +69,9 @@ Position status follows a one-way state machine. `OPEN` is the only non-terminal
 
 ## 3. System Architecture
 
-### Top-Level Context
+![Hatchloom Component Overview](images/component_overview.png)
 
-```
-┌───────────────────────────────────────────────────────────┐
-│                     Hatchloom Platform                     │
-│                                                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐  │
-│  │  Auth (Q1)   │  │ LaunchPad(Q2)│  │ ConnectHub(Q3) │  │
-│  │              │  │              │  │                │  │
-│  │ Registration │  │  Sandbox     │  │  Feed          │  │
-│  │ Login        │  │  SideHustle  │  │  Classifieds   │  │
-│  │ Sanctum      │  │  BMC         │  │  Messaging     │  │
-│  │ Profiles     │  │  Team        │  │                │  │
-│  │ RBAC         │  │  Positions   │  │                │  │
-│  └──────┬───────┘  └──────┬───────┘  └───────┬────────┘  │
-│         │                 │                  │            │
-│         └────────────┬────┘                  │            │
-│                      │   Shared PostgreSQL    │            │
-│                      └───────────────────────┘            │
-└───────────────────────────────────────────────────────────┘
-```
-
-### LaunchPad Internal Architecture
-
-```
-HTTP Client
-    │
-    ▼
-┌──────────────────────────────────────────────────────────┐
-│                    routes/api.php                         │
-│              middleware: auth:sanctum                     │
-└──────┬───────────┬───────────┬───────────┬───────────────┘
-       │           │           │           │           │
-       ▼           ▼           ▼           ▼           ▼
-┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-│ Sandbox  │ │SideHustle│ │BusinessMo│ │  Team    │ │ Position │
-│Controller│ │Controller│ │delCanvas │ │Controller│ │Controller│
-│          │ │          │ │Controller│ │          │ │          │
-│ index    │ │ index    │ │          │ │ show     │ │ index    │
-│ store    │ │ store    │ │ show     │ │ addMember│ │ store    │
-│ show     │ │ show     │ │ update   │ │removeMem.│ │ update   │
-│ update   │ │ update   │ │          │ │          │ │ destroy  │
-│ destroy  │ │ destroy  │ └─────┬────┘ └─────┬────┘ └─────┬────┘
-└─────┬────┘ │createFrom│       │             │            │
-      │      │ Sandbox  │       │             │            │
-      │      │launchpad │       │             │            │
-      │      │ Summary  │       │             │            │
-      │      └────┬─────┘       │             │            │
-      │           │             │             │            │
-      ▼           ▼             ▼             ▼            ▼
-┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐
-│ Sandbox  │ │SideHustle│ │ Business │ │   Team   │ │    Position      │
-│  Model   │ │  Model   │ │ Model    │ │  Model   │ │    Model         │
-│          │ │          │ │  Canvas  │ │ TeamMem. │ │                  │
-└──────────┘ └──────────┘ └──────────┘ └──────────┘ │syncOpenPositions │
-                                                     │    Flag()        │
-                                                     └────────┬─────────┘
-                                                              │
-                                                              ▼
-                                                     ┌──────────────────┐
-                                                     │side_hustles      │
-                                                     │has_open_positions│
-                                                     │   (UPDATE)       │
-                                                     └──────────────────┘
-```
-
-### Sandbox Promotion Flow
-
-```
-Sandbox ──── POST /api/sandboxes/{id}/launch ────▶ SideHustle
-                                                      │
-                                        ┌─────────────┼─────────────┐
-                                        ▼             ▼             ▼
-                                   (auto-create) (auto-create)  Positions
-                                   empty BMC    empty Team      (none yet)
-```
+![LaunchPad Overview](images/component_launchpad.png)
 
 ---
 
@@ -168,7 +91,7 @@ Handles full CRUD for experimental idea workspaces.
 | `update()` | `PUT /api/sandboxes/{id}` | Ownership guard; updates `title` and/or `description` |
 | `destroy()` | `DELETE /api/sandboxes/{id}` | Ownership guard; deletes sandbox |
 
-Ownership check: `sandbox->student_id !== $request->user()->id` → `403 Forbidden`.
+Ownership check: `sandbox->student_id !== $request->user()->id` -> `403 Forbidden`.
 
 ---
 
@@ -183,14 +106,14 @@ The most complex controller. Handles the full venture lifecycle, sandbox promoti
 | `show()` | `GET /api/sidehustles/{id}` | Returns SideHustle with eager-loaded BMC, Team (with members), Positions |
 | `update()` | `PUT /api/sidehustles/{id}` | Ownership guard; updates title, description, status |
 | `destroy()` | `DELETE /api/sidehustles/{id}` | Ownership guard; cascades to BMC, Team, TeamMembers, Positions |
-| `createFromSandbox()` | `POST /api/sandboxes/{id}/launch` | Ownership guard; clones sandbox → SideHustle; auto-creates BMC + Team |
+| `createFromSandbox()` | `POST /api/sandboxes/{id}/launch` | Ownership guard; clones sandbox -> SideHustle; auto-creates BMC + Team |
 | `launchpadSummary()` | `GET /api/launchpad/summary` | 4 scoped queries; returns counts + SideHustles with open positions only |
 
 ---
 
 #### `BusinessModelCanvasController`
 
-Two-method controller — the BMC record is always auto-created by `SideHustleController`; this controller only reads and updates it.
+Two-method controller - the BMC record is always auto-created by `SideHustleController`; this controller only reads and updates it.
 
 | Method | Route | Responsibility |
 |---|---|---|
@@ -208,10 +131,10 @@ Manages the team roster for a SideHustle.
 | Method | Route | Responsibility |
 |---|---|---|
 | `show()` | `GET /api/teams/{sideHustleId}` | Returns Team with nested members |
-| `addMember()` | `POST /api/teams/{teamId}/members` | Ownership guard (via Team → SideHustle); adds a member with role |
+| `addMember()` | `POST /api/teams/{teamId}/members` | Ownership guard (via Team -> SideHustle); adds a member with role |
 | `removeMember()` | `DELETE /api/teams/{teamId}/members/{memberId}` | Ownership guard; removes a team member |
 
-Ownership traversal: `Team → SideHustle → student_id === auth user`.
+Ownership traversal: `Team -> SideHustle -> student_id === auth user`.
 
 ---
 
@@ -241,7 +164,7 @@ Terminal state guard (in `update`): if `position->status !== 'OPEN'`, any status
 | `TeamMember` | `team_members` | `belongsTo Team`, `belongsTo User (student_id)` |
 | `Position` | `positions` | `belongsTo SideHustle`, `hasOne ClassifiedPost` |
 
-`SideHustle` declares `hasMany(ClassifiedPost)` and `Position` declares `hasOne(ClassifiedPost)`. These relations pre-wire the ConnectHub (Q3) foreign key dependencies without creating a hard runtime dependency — ConnectHub reads these tables directly.
+`SideHustle` declares `hasMany(ClassifiedPost)` and `Position` declares `hasOne(ClassifiedPost)`. These relations pre-wire the ConnectHub (Q3) foreign key dependencies without creating a hard runtime dependency - ConnectHub reads these tables directly.
 
 `SideHustle` casts `has_open_positions` to boolean.
 
@@ -256,9 +179,9 @@ syncOpenPositionsFlag(int $sideHustleId)
   │
   ├─ query: does any Position with status=OPEN exist for this SideHustle?
   │
-  ├─ true  → SideHustle::where(id)->update([has_open_positions => true])
+  ├─ true  -> SideHustle::where(id)->update([has_open_positions => true])
   │
-  └─ false → SideHustle::where(id)->update([has_open_positions => false])
+  └─ false -> SideHustle::where(id)->update([has_open_positions => false])
 ```
 
 Called by: `store()`, `update()`, `destroy()` in `PositionController`.
@@ -273,7 +196,7 @@ Called by: `store()`, `update()`, `destroy()` in `PositionController`.
 
 **Problem solved:** Resources are user-owned; only the owner may modify or delete them.
 
-**Solution:** A direct comparison between the resource's `student_id` (or the parent`s `student_id` for TeamMember/BMC paths) and `$request->user()->id`. On mismatch, a manual `403 Forbidden` JSON response is returned immediately. No Laravel Gate or Policy is registered — the permission rules are simple enough that co-located inline checks reduce indirection.
+**Solution:** A direct comparison between the resource's `student_id` (or the parent`s `student_id` for TeamMember/BMC paths) and `$request->user()->id`. On mismatch, a manual `403 Forbidden` JSON response is returned immediately. No Laravel Gate or Policy is registered - the permission rules are simple enough that co-located inline checks reduce indirection.
 
 ```
 PUT /api/sandboxes/{id}
@@ -330,7 +253,7 @@ Position::create({ side_hustle_id, title, status: OPEN })
     │
     ▼
 syncOpenPositionsFlag($sideHustleId)
-    │  → positions.where(side_hustle_id, status=OPEN).exists()  ──▶  true
+    │  -> positions.where(side_hustle_id, status=OPEN).exists()  ──▶  true
     │
     ▼
 SideHustle::update({ has_open_positions: true })
@@ -342,7 +265,7 @@ SideHustle::update({ has_open_positions: true })
 
 **Problem solved:** Positions should not cycle between statuses. A filled or closed role should not be re-opened without intention; allowing free transitions could corrupt the ConnectHub Classifieds ownership checks which rely on `positions.status`.
 
-**Solution:** `OPEN` is the only state from which a transition is allowed. `FILLED` and `CLOSED` are terminal — any attempt to change status from these states returns `422 Unprocessable`.
+**Solution:** `OPEN` is the only state from which a transition is allowed. `FILLED` and `CLOSED` are terminal - any attempt to change status from these states returns `422 Unprocessable`.
 
 ```
 Status Transition Map:
@@ -583,7 +506,7 @@ SideHustleController::launchpadSummary()
   │                ────────────────────────────▶ side_hustles (SELECT COUNT)
   │
   └─ SideHustle::where(student_id, 42)
-                 ->with(['positions' => fn → where(status, OPEN)])
+                 ->with(['positions' => fn -> where(status, OPEN)])
                  ->get()
                   ────────────────────────────▶ side_hustles + positions (SELECT)
   │
@@ -598,7 +521,7 @@ HTTP 200 {
 
 ## 8. Cross-Service Interfaces
 
-### 8.1 Session Validation Interface (Auth Q1 → LaunchPad)
+### 8.1 Session Validation Interface (Auth Q1 -> LaunchPad)
 
 Every LaunchPad route requires a valid Sanctum bearer token. The `auth:sanctum` middleware resolves the token from the `Authorization: Bearer {token}` header, looks up the token in the `personal_access_tokens` table (managed by Q1 Auth), and populates `$request->user()`.
 
@@ -617,9 +540,9 @@ Content-Type: application/json
 { "email": "student@hatchloom.dev", "password": "password" }
 ```
 
-### 8.2 Position Status Interface (LaunchPad Q2 → ConnectHub Q3)
+### 8.2 Position Status Interface (LaunchPad Q2 -> ConnectHub Q3)
 
-ConnectHub reads directly from the `positions` and `side_hustles` tables when creating a `ClassifiedPost` (same PostgreSQL instance — no API call). This interface has two requirements:
+ConnectHub reads directly from the `positions` and `side_hustles` tables when creating a `ClassifiedPost` (same PostgreSQL instance - no API call). This interface has two requirements:
 
 1. `positions.id` is the foreign key target for `classified_posts.position_id`
 2. `side_hustles.student_id` is read to verify the posting user owns the venture the position belongs to

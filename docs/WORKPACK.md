@@ -13,17 +13,17 @@ Hatchloom Inc.
 
 ## SCOPE OVERVIEW
 
-Team Quebec owns three critical backend domains: Authentication and User Profiles, the LaunchPad pillar (Sandbox and SideHustle), and the ConnectHub pillar (feed, classifieds, messaging data model). Your team is smaller (3 people), but your scope includes the auth service which is foundational — no other service can function without user identity.
+Team Quebec owns three critical backend domains: Authentication and User Profiles, the LaunchPad pillar (Sandbox and SideHustle), and the ConnectHub pillar (feed, classifieds, messaging data model). Your team is smaller (3 people), but your scope includes the auth service which is foundational - no other service can function without user identity.
 
 Your Riipen supervisor is Karl, who is the Database Design and AI Outline Document lead. Karl is also responsible for setting up the GitHub repository, Discord channels, and shared file exchange directories for all teams. Work closely with Karl on database schema design since your services have the most complex relational models (teams, positions, projects, BMC).
 
 ## Your Domain in Hatchloom
 
-* Auth & User Profile Service — Registration, login, session management, profile CRUD, role-based identity (student, teacher, parent, school admin)
+* Auth & User Profile Service - Registration, login, session management, profile CRUD, role-based identity (student, teacher, parent, school admin)
 
-* LaunchPad Service — Sandbox CRUD, SideHustle CRUD, BMC (Business Model Canvas) tool data model, team panel, open positions
+* LaunchPad Service - Sandbox CRUD, SideHustle CRUD, BMC (Business Model Canvas) tool data model, team panel, open positions
 
-* ConnectHub Service — Feed/sharing actions, Classifieds (post creation, OPEN position listings), basic messaging data model
+* ConnectHub Service - Feed/sharing actions, Classifieds (post creation, OPEN position listings), basic messaging data model
 
 ## Golden Path Coverage
 
@@ -32,12 +32,12 @@ Your services power these demo moments:
 | Moment | Screen | Demo | What Your Service Provides |
 | :---- | :---- | :---- | :---- |
 | All | All | A \+ B | Auth: user identity for every API call across the entire platform |
-| 7A — ConnectHub | 100 | A | Feed/sharing action, Classifieds post creation, OPEN position state |
-| 8A — LaunchPad | 200 → 240 | A | LaunchPad overview, SideHustle with compound butter project, 1 open position, BMC tool editable |
+| 7A - ConnectHub | 100 | A | Feed/sharing action, Classifieds post creation, OPEN position state |
+| 8A - LaunchPad | 200 -> 240 | A | LaunchPad overview, SideHustle with compound butter project, 1 open position, BMC tool editable |
 
 ## 2\. TIMELINE & DELIVERABLE SCHEDULE**
 
-### Part 1 — CSSD2203 (\~10 days from Feb 20\)
+### Part 1 - CSSD2203 (\~10 days from Feb 20\)
 
 Design documentation \+ initial implementation. Exact submission date to be confirmed with Professor Marius.
 
@@ -69,11 +69,11 @@ Design documentation \+ initial implementation. Exact submission date to be conf
 
 * Ensure code is commented and each module has an associated main class for standalone execution
 
-### Part 2 — CSSD2211 (\~2 weeks after Part 1\)
+### Part 2 - CSSD2211 (\~2 weeks after Part 1\)
 
 Containerization, API documentation, CI/CD.
 
-* Create Docker images for your services (auth, LaunchPad, ConnectHub — can be one or separate containers)
+* Create Docker images for your services (auth, LaunchPad, ConnectHub - can be one or separate containers)
 
 * Write API documentation: every endpoint, HTTP method, input/output format, example requests and responses
 
@@ -202,9 +202,9 @@ When you submit your coursework, your code and documentation become the foundati
 
 * Docker image that builds and runs without manual intervention
 
-* Known issues list: anything incomplete, stubbed, or broken — be honest, this saves the Riipen team hours
+* Known issues list: anything incomplete, stubbed, or broken - be honest, this saves the Riipen team hours
 
-| CRITICAL — AUTH PRIORITY The auth service must work before anything else can be tested. If you are behind, deprioritize ConnectHub features and ensure auth \+ LaunchPad basics are solid. A working login flow with session tokens is worth more than a feature-complete classifieds system. |
+| CRITICAL - AUTH PRIORITY The auth service must work before anything else can be tested. If you are behind, deprioritize ConnectHub features and ensure auth \+ LaunchPad basics are solid. A working login flow with session tokens is worth more than a feature-complete classifieds system. |
 | :---- |
 
 # **5\. TEST CASE FORMAT (CSSD2203 REQUIREMENT)**

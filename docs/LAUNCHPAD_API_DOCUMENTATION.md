@@ -1,9 +1,5 @@
 # LaunchPad API Documentation
 
-**Service:** LaunchPad (Q2 — Team Quebec)
-**Base URL:** `http://localhost/api`
-**Authentication:** All LaunchPad endpoints require a Sanctum bearer token issued by the Auth service (Q1).
-
 Add the following header to every request:
 ```
 Authorization: Bearer {token}
@@ -15,33 +11,37 @@ Tokens are obtained via `POST /login` (Auth service). All unauthenticated reques
 
 ## Table of Contents
 
-- [Sandbox Module](#sandbox-module)
-  - [GET /api/sandboxes](#get-apisandboxes)
-  - [POST /api/sandboxes](#post-apisandboxes)
-  - [GET /api/sandboxes/{id}](#get-apisandboxesid)
-  - [PUT /api/sandboxes/{id}](#put-apisandboxesid)
-  - [DELETE /api/sandboxes/{id}](#delete-apisandboxesid)
-  - [POST /api/sandboxes/{id}/launch](#post-apisandboxesidlaunch)
-- [SideHustle Module](#sidehustle-module)
-  - [GET /api/launchpad/summary](#get-apilaunchpadsummary)
-  - [GET /api/sidehustles](#get-apisidehustles)
-  - [POST /api/sidehustles](#post-apisidehustles)
-  - [GET /api/sidehustles/{id}](#get-apisidehustlesid)
-  - [PUT /api/sidehustles/{id}](#put-apisidehustlesid)
-  - [DELETE /api/sidehustles/{id}](#delete-apisidehustlesid)
-- [Business Model Canvas Module](#business-model-canvas-module)
-  - [GET /api/sidehustles/{id}/bmc](#get-apisidehustlesidbmc)
-  - [PUT /api/sidehustles/{id}/bmc](#put-apisidehustlesidbmc)
-- [Team Module](#team-module)
-  - [GET /api/teams/{sideHustleId}](#get-apiteamssidehustleid)
-  - [POST /api/teams/{teamId}/members](#post-apiteamsteamidmembers)
-  - [DELETE /api/teams/{teamId}/members/{memberId}](#delete-apiteamsteamidmembersmemberid)
-- [Position Module](#position-module)
-  - [GET /api/positions/{sideHustleId}](#get-apipositionssidehustleid)
-  - [POST /api/positions](#post-apipositions)
-  - [PUT /api/positions/{id}](#put-apipositionsid)
-  - [DELETE /api/positions/{id}](#delete-apipositionsid)
-- [Cross-Service Dependencies](#cross-service-dependencies)
+- [LaunchPad API Documentation](#launchpad-api-documentation)
+  - [Table of Contents](#table-of-contents)
+  - [Sandbox Module](#sandbox-module)
+    - [GET /api/sandboxes](#get-apisandboxes)
+    - [POST /api/sandboxes](#post-apisandboxes)
+    - [GET /api/sandboxes/{id}](#get-apisandboxesid)
+    - [PUT /api/sandboxes/{id}](#put-apisandboxesid)
+    - [DELETE /api/sandboxes/{id}](#delete-apisandboxesid)
+    - [POST /api/sandboxes/{id}/launch](#post-apisandboxesidlaunch)
+  - [SideHustle Module](#sidehustle-module)
+    - [GET /api/launchpad/summary](#get-apilaunchpadsummary)
+    - [GET /api/sidehustles](#get-apisidehustles)
+    - [POST /api/sidehustles](#post-apisidehustles)
+    - [GET /api/sidehustles/{id}](#get-apisidehustlesid)
+    - [PUT /api/sidehustles/{id}](#put-apisidehustlesid)
+    - [DELETE /api/sidehustles/{id}](#delete-apisidehustlesid)
+  - [Business Model Canvas Module](#business-model-canvas-module)
+    - [GET /api/sidehustles/{id}/bmc](#get-apisidehustlesidbmc)
+    - [PUT /api/sidehustles/{id}/bmc](#put-apisidehustlesidbmc)
+  - [Team Module](#team-module)
+    - [GET /api/teams/{sideHustleId}](#get-apiteamssidehustleid)
+    - [POST /api/teams/{teamId}/members](#post-apiteamsteamidmembers)
+    - [DELETE /api/teams/{teamId}/members/{memberId}](#delete-apiteamsteamidmembersmemberid)
+  - [Position Module](#position-module)
+    - [GET /api/positions/{sideHustleId}](#get-apipositionssidehustleid)
+    - [POST /api/positions](#post-apipositions)
+    - [PUT /api/positions/{id}](#put-apipositionsid)
+    - [DELETE /api/positions/{id}](#delete-apipositionsid)
+  - [Cross-Service Dependencies](#cross-service-dependencies)
+    - [Auth Service (Q1) -\> LaunchPad (Q2)](#auth-service-q1---launchpad-q2)
+    - [LaunchPad (Q2) -\> ConnectHub (Q3) - Position Status Interface](#launchpad-q2---connecthub-q3---position-status-interface)
 
 ---
 
@@ -67,7 +67,7 @@ Lists sandboxes. Optionally filter by `student_id`.
 |---|---|---|---|
 | `student_id` | integer | No | Filter results to a specific student |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 [
@@ -115,7 +115,7 @@ Creates a new sandbox.
 }
 ```
 
-**Response 201 — Created**
+**Response 201 - Created**
 
 ```json
 {
@@ -132,7 +132,7 @@ Creates a new sandbox.
 |---|---|
 | `201` | Sandbox created |
 | `401` | Missing or invalid bearer token |
-| `422` | Validation error — missing `student_id` or `title`, or `student_id` not found |
+| `422` | Validation error - missing `student_id` or `title`, or `student_id` not found |
 
 ---
 
@@ -146,7 +146,7 @@ Retrieves a single sandbox by ID.
 | URL | `/api/sandboxes/{id}` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 Same shape as the POST response above.
 
@@ -181,7 +181,7 @@ Updates a sandbox's title and/or description.
 }
 ```
 
-**Response 200 — OK** — returns updated sandbox.
+**Response 200 - OK** - returns updated sandbox.
 
 | Code | Meaning |
 |---|---|
@@ -202,7 +202,7 @@ Deletes a sandbox.
 | URL | `/api/sandboxes/{id}` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 { "message": "Sandbox deleted" }
@@ -226,7 +226,7 @@ Promotes a Sandbox to a SideHustle. Inherits the sandbox's `title` and `descript
 | URL | `/api/sandboxes/{id}/launch` |
 | Body | None |
 
-**Response 201 — Created**
+**Response 201 - Created**
 
 ```json
 {
@@ -269,7 +269,7 @@ Returns aggregate counts for the authenticated student's LaunchPad home (Screen 
 | URL | `/api/launchpad/summary` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 {
@@ -314,7 +314,7 @@ Lists SideHustles. Optionally filter by `student_id`.
 |---|---|---|---|
 | `student_id` | integer | No | Filter to a specific student |
 
-**Response 200 — OK** — returns array of SideHustles with nested `bmc`, `team`, `positions`.
+**Response 200 - OK** - returns array of SideHustles with nested `bmc`, `team`, `positions`.
 
 | Code | Meaning |
 |---|---|
@@ -349,7 +349,7 @@ Creates a new SideHustle. Automatically creates an empty BMC and Team.
 }
 ```
 
-**Response 201 — Created**
+**Response 201 - Created**
 
 ```json
 {
@@ -383,7 +383,7 @@ Returns a single SideHustle with nested BMC, team (with members), and positions.
 | Method | `GET` |
 | URL | `/api/sidehustles/{id}` |
 
-**Response 200 — OK** — full SideHustle object with all relations.
+**Response 200 - OK** - full SideHustle object with all relations.
 
 | Code | Meaning |
 |---|---|
@@ -417,7 +417,7 @@ Updates a SideHustle's title, description, and/or status.
 }
 ```
 
-**Response 200 — OK** — returns updated SideHustle with all relations.
+**Response 200 - OK** - returns updated SideHustle with all relations.
 
 | Code | Meaning |
 |---|---|
@@ -437,7 +437,7 @@ Deletes a SideHustle. Cascades to BMC, Team, TeamMembers, and Positions.
 | Method | `DELETE` |
 | URL | `/api/sidehustles/{id}` |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 { "message": "SideHustle deleted successfully" }
@@ -467,7 +467,7 @@ Returns the BMC for a SideHustle.
 | URL | `/api/sidehustles/{id}/bmc` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 {
@@ -526,7 +526,7 @@ Updates one or more BMC sections. Only the fields provided are updated; omitted 
 }
 ```
 
-**Response 200 — OK** — returns the updated BMC object.
+**Response 200 - OK** - returns the updated BMC object.
 
 | Code | Meaning |
 |---|---|
@@ -552,7 +552,7 @@ Returns the Team and its members for a given SideHustle.
 | URL | `/api/teams/{sideHustleId}` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 {
@@ -604,7 +604,7 @@ Adds a member to a team.
 }
 ```
 
-**Response 201 — Created**
+**Response 201 - Created**
 
 ```json
 {
@@ -637,7 +637,7 @@ Removes a member from a team.
 | URL | `/api/teams/{teamId}/members/{memberId}` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 { "message": "Team member removed" }
@@ -671,7 +671,7 @@ Lists all positions for a SideHustle.
 | URL | `/api/positions/{sideHustleId}` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 [
@@ -721,7 +721,7 @@ Creates a new position. Status defaults to `OPEN`. Updates `side_hustles.has_ope
 }
 ```
 
-**Response 201 — Created**
+**Response 201 - Created**
 
 ```json
 {
@@ -767,7 +767,7 @@ Updates a position. Re-evaluates `has_open_positions` on the parent SideHustle a
 }
 ```
 
-**Response 200 — OK** — returns updated position.
+**Response 200 - OK** - returns updated position.
 
 | Code | Meaning |
 |---|---|
@@ -788,7 +788,7 @@ Deletes a position and re-evaluates `has_open_positions` on the parent SideHustl
 | URL | `/api/positions/{id}` |
 | Body | None |
 
-**Response 200 — OK**
+**Response 200 - OK**
 
 ```json
 { "message": "Position deleted" }
@@ -804,7 +804,7 @@ Deletes a position and re-evaluates `has_open_positions` on the parent SideHustl
 
 ## Cross-Service Dependencies
 
-### Auth Service (Q1) → LaunchPad (Q2)
+### Auth Service (Q1) -> LaunchPad (Q2)
 
 Every LaunchPad route requires a valid Sanctum token. The `auth:sanctum` middleware enforces session validation on all endpoints. The token is obtained via the Auth service:
 
@@ -815,7 +815,7 @@ Content-Type: application/json
 { "email": "student@hatchloom.dev", "password": "password" }
 ```
 
-### LaunchPad (Q2) → ConnectHub (Q3) — Position Status Interface
+### LaunchPad (Q2) -> ConnectHub (Q3) - Position Status Interface
 
 ConnectHub Classifieds reads directly from the `positions` and `side_hustles` tables (same database, no API call). When `POST /api/classifieds` is called by Q3:
 

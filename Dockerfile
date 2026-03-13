@@ -1,5 +1,5 @@
 # =============================================================================
-# Stage 1 — Composer dependencies
+# Stage 1 - Composer dependencies
 # =============================================================================
 FROM composer:2 AS vendor
 
@@ -14,7 +14,7 @@ RUN composer install \
     --optimize-autoloader
 
 # =============================================================================
-# Stage 2 — Production image
+# Stage 2 - Production image
 # =============================================================================
 FROM php:8.2-fpm-alpine
 

@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * LaunchPad — Business Model Canvas tests.
+ * LaunchPad - Business Model Canvas tests.
  *
  * Required:
  *   TC-Q2-002 (HL-BMC-Update)

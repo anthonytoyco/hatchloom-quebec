@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * LaunchPad — SideHustle tests.
+ * LaunchPad - SideHustle tests.
  *
  * Required:
  *   TC-Q2-001 (HL-SideHustle-Create)

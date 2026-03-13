@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * LaunchPad — Position tests.
+ * LaunchPad - Position tests.
  *
  * Required:
  *   TC-Q2-003 (HL-Create-Open-Position)
