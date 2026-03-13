@@ -122,4 +122,21 @@ class BusinessModelCanvasTest extends TestCase
             ->getJson('/api/sidehustles/99999/bmc')
             ->assertStatus(404);
     }
+
+    // -------------------------------------------------------------------------
+    // Ownership guard
+    // -------------------------------------------------------------------------
+
+    public function test_non_owner_cannot_update_bmc(): void
+    {
+        $owner      = User::factory()->create();
+        $other      = User::factory()->create();
+        $sideHustle = $this->createSideHustleWithBmc($owner);
+
+        $this->actingAs($other, 'sanctum')
+            ->putJson("/api/sidehustles/{$sideHustle->id}/bmc", [
+                'key_partners' => 'Should not save',
+            ])
+            ->assertStatus(403);
+    }
 }

@@ -206,4 +206,81 @@ class PositionTest extends TestCase
             ->assertOk()
             ->assertJsonCount(3);
     }
+
+    // -------------------------------------------------------------------------
+    // Ownership guards
+    // -------------------------------------------------------------------------
+
+    public function test_non_owner_cannot_update_position(): void
+    {
+        $owner      = User::factory()->create();
+        $other      = User::factory()->create();
+        $sideHustle = $this->createSideHustleFor($owner);
+        $position   = Position::factory()->create(['side_hustle_id' => $sideHustle->id]);
+
+        $this->actingAs($other, 'sanctum')
+            ->putJson("/api/positions/{$position->id}", ['title' => 'Hijacked'])
+            ->assertStatus(403);
+    }
+
+    public function test_non_owner_cannot_delete_position(): void
+    {
+        $owner      = User::factory()->create();
+        $other      = User::factory()->create();
+        $sideHustle = $this->createSideHustleFor($owner);
+        $position   = Position::factory()->create(['side_hustle_id' => $sideHustle->id]);
+
+        $this->actingAs($other, 'sanctum')
+            ->deleteJson("/api/positions/{$position->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('positions', ['id' => $position->id]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Status transition guards (design doc p.19 / Test ID 13)
+    // Only OPEN positions can transition; FILLED and CLOSED are terminal
+    // -------------------------------------------------------------------------
+
+    public function test_cannot_transition_from_filled_to_open(): void
+    {
+        $user       = User::factory()->create();
+        $sideHustle = $this->createSideHustleFor($user);
+        $position   = Position::factory()->create([
+            'side_hustle_id' => $sideHustle->id,
+            'status'         => 'FILLED',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/positions/{$position->id}", ['status' => 'OPEN'])
+            ->assertStatus(422);
+    }
+
+    public function test_cannot_transition_from_closed_to_open(): void
+    {
+        $user       = User::factory()->create();
+        $sideHustle = $this->createSideHustleFor($user);
+        $position   = Position::factory()->create([
+            'side_hustle_id' => $sideHustle->id,
+            'status'         => 'CLOSED',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/positions/{$position->id}", ['status' => 'OPEN'])
+            ->assertStatus(422);
+    }
+
+    public function test_cannot_transition_from_filled_to_closed(): void
+    {
+        $user       = User::factory()->create();
+        $sideHustle = $this->createSideHustleFor($user);
+        $position   = Position::factory()->create([
+            'side_hustle_id' => $sideHustle->id,
+            'status'         => 'FILLED',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/positions/{$position->id}", ['status' => 'CLOSED'])
+            ->assertStatus(422);
+    }
 }

@@ -104,6 +104,44 @@ class TeamTest extends TestCase
         $this->assertDatabaseMissing('team_members', ['id' => $teamMember->id]);
     }
 
+    // -------------------------------------------------------------------------
+    // Ownership guards
+    // -------------------------------------------------------------------------
+
+    public function test_non_owner_cannot_add_team_member(): void
+    {
+        $owner  = User::factory()->create();
+        $other  = User::factory()->create();
+        $member = User::factory()->create();
+        $team   = $this->createTeamFor($owner);
+
+        $this->actingAs($other, 'sanctum')
+            ->postJson("/api/teams/{$team->id}/members", [
+                'student_id' => $member->id,
+                'role'       => 'Intruder',
+            ])
+            ->assertStatus(403);
+    }
+
+    public function test_non_owner_cannot_remove_team_member(): void
+    {
+        $owner  = User::factory()->create();
+        $other  = User::factory()->create();
+        $team   = $this->createTeamFor($owner);
+
+        $teamMember = TeamMember::create([
+            'team_id'    => $team->id,
+            'student_id' => $owner->id,
+            'role'       => 'Founder',
+        ]);
+
+        $this->actingAs($other, 'sanctum')
+            ->deleteJson("/api/teams/{$team->id}/members/{$teamMember->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('team_members', ['id' => $teamMember->id]);
+    }
+
     public function test_get_team_shows_all_members(): void
     {
         $owner = User::factory()->create();

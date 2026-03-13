@@ -215,4 +215,32 @@ class SideHustleTest extends TestCase
 
         $this->assertDatabaseMissing('side_hustles', ['id' => $sideHustle->id]);
     }
+
+    // -------------------------------------------------------------------------
+    // Ownership guards
+    // -------------------------------------------------------------------------
+
+    public function test_user_cannot_update_another_users_sidehustle(): void
+    {
+        $owner      = User::factory()->create();
+        $other      = User::factory()->create();
+        $sideHustle = SideHustle::factory()->create(['student_id' => $owner->id]);
+
+        $this->actingAs($other, 'sanctum')
+            ->putJson("/api/sidehustles/{$sideHustle->id}", ['title' => 'Hijacked Title'])
+            ->assertStatus(403);
+    }
+
+    public function test_user_cannot_delete_another_users_sidehustle(): void
+    {
+        $owner      = User::factory()->create();
+        $other      = User::factory()->create();
+        $sideHustle = SideHustle::factory()->create(['student_id' => $owner->id]);
+
+        $this->actingAs($other, 'sanctum')
+            ->deleteJson("/api/sidehustles/{$sideHustle->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('side_hustles', ['id' => $sideHustle->id]);
+    }
 }

@@ -144,4 +144,32 @@ class SandboxTest extends TestCase
 
         $this->assertDatabaseMissing('sandboxes', ['id' => $sandbox->id]);
     }
+
+    // -------------------------------------------------------------------------
+    // Ownership guards
+    // -------------------------------------------------------------------------
+
+    public function test_user_cannot_update_another_users_sandbox(): void
+    {
+        $owner   = User::factory()->create();
+        $other   = User::factory()->create();
+        $sandbox = Sandbox::factory()->create(['student_id' => $owner->id]);
+
+        $this->actingAs($other, 'sanctum')
+            ->putJson("/api/sandboxes/{$sandbox->id}", ['title' => 'Stolen Title'])
+            ->assertStatus(403);
+    }
+
+    public function test_user_cannot_delete_another_users_sandbox(): void
+    {
+        $owner   = User::factory()->create();
+        $other   = User::factory()->create();
+        $sandbox = Sandbox::factory()->create(['student_id' => $owner->id]);
+
+        $this->actingAs($other, 'sanctum')
+            ->deleteJson("/api/sandboxes/{$sandbox->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('sandboxes', ['id' => $sandbox->id]);
+    }
 }

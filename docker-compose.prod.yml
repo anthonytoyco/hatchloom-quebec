@@ -1,6 +1,6 @@
 services:
   app:
-    image: hatchloom-connecthub:latest
+    image: hatchloom-app:latest
     build:
       context: .
       dockerfile: Dockerfile

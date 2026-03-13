@@ -36,6 +36,10 @@ class SandboxController extends Controller
     {
         $sandbox = Sandbox::findOrFail($id);
 
+        if ($sandbox->student_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $data = $request->validate([
             'title' => 'sometimes|required|string',
             'description' => 'sometimes|nullable|string',
@@ -45,9 +49,14 @@ class SandboxController extends Controller
         return response()->json($sandbox);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $sandbox = Sandbox::findOrFail($id);
+
+        if ($sandbox->student_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $sandbox->delete();
         return response()->json(['message' => 'Sandbox deleted']);
     }

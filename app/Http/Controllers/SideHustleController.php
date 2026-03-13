@@ -69,6 +69,10 @@ class SideHustleController extends Controller
     {
         $sideHustle = SideHustle::findOrFail($id);
 
+        if ($sideHustle->student_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -80,9 +84,14 @@ class SideHustleController extends Controller
         return response()->json($sideHustle->load(['bmc', 'team', 'positions']));
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $sideHustle = SideHustle::findOrFail($id);
+
+        if ($sideHustle->student_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $sideHustle->delete();
 
         return response()->json(['message' => 'SideHustle deleted successfully']);

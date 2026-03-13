@@ -1,4 +1,4 @@
-name: ConnectHub CI/CD
+name: Hatchloom CI/CD
 
 on:
   push:
@@ -33,10 +33,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up PHP 8.4
+      - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: "8.2"
           extensions: pdo, pdo_pgsql, zip, opcache
           coverage: none
 
@@ -60,8 +60,11 @@ jobs:
       - name: Install Node dependencies and build frontend assets
         run: npm ci && npm run build
 
-      - name: Run PHPUnit tests
-        run: php artisan test
+      - name: Run PHPUnit tests — Auth service
+        run: php artisan test --filter=Auth
+
+      - name: Run PHPUnit tests — LaunchPad service
+        run: php artisan test --filter=LaunchPad
 
   # ---------------------------------------------------------------------------
   # Job 2: Build and verify the production Docker image
@@ -81,7 +84,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build production Docker image
-        run: docker build -t hatchloom-connecthub:${{ github.sha }} -t hatchloom-connecthub:latest .
+        run: docker build -t hatchloom-app:${{ github.sha }} -t hatchloom-app:latest .
 
       - name: Verify image can run artisan
         run: |
@@ -94,5 +97,5 @@ jobs:
             -e DB_USERNAME=test \
             -e DB_PASSWORD=test \
             --entrypoint php \
-            hatchloom-connecthub:latest \
+            hatchloom-app:latest \
             artisan --version

@@ -15,7 +15,13 @@ class BusinessModelCanvasController extends Controller
 
     public function update(Request $request, $sideHustleId)
     {
-        $bmc = SideHustle::findOrFail($sideHustleId)->bmc;
+        $sideHustle = SideHustle::findOrFail($sideHustleId);
+
+        if ($sideHustle->student_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $bmc = $sideHustle->bmc;
 
         $data = $request->validate([
             'key_partners'           => 'nullable|string',
