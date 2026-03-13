@@ -4,6 +4,8 @@
 **Version:** 1.0.0
 **Stack:** Laravel 12 · PHP 8.2 · PostgreSQL 18 · Laravel Sanctum · PHPUnit
 
+[GitHub Link](https://github.com/anthonytoyco/hatchloom-launchpad)
+
 ---
 
 ## Table of Contents

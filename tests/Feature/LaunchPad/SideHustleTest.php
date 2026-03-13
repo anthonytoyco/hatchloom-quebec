@@ -31,7 +31,7 @@ class SideHustleTest extends TestCase
 
     // -------------------------------------------------------------------------
     // TC-Q2-001  HL-SideHustle-Create
-    // POST /api/sidehustles → 201, status=IN_THE_LAB, BMC + Team auto-created
+    // POST /api/sidehustles, 201, status=IN_THE_LAB, BMC + Team auto-created
     // -------------------------------------------------------------------------
 
     public function test_authenticated_user_can_create_sidehustle(): void
@@ -104,7 +104,7 @@ class SideHustleTest extends TestCase
 
     // -------------------------------------------------------------------------
     // TC-Q2-006  HL-CreateFromSandbox
-    // POST /api/sandboxes/{id}/launch → 201, SideHustle inherits sandbox data
+    // POST /api/sandboxes/{id}/launch, 201, SideHustle inherits sandbox data
     // -------------------------------------------------------------------------
 
     public function test_sandbox_can_be_promoted_to_sidehustle(): void
@@ -143,7 +143,7 @@ class SideHustleTest extends TestCase
 
     // -------------------------------------------------------------------------
     // TC-Q2-004  HL-LaunchPad-Summary
-    // GET /api/launchpad/summary → correct counts for auth'd student
+    // GET /api/launchpad/summary, correct counts for auth'd student
     // -------------------------------------------------------------------------
 
     public function test_launchpad_summary_returns_correct_counts(): void

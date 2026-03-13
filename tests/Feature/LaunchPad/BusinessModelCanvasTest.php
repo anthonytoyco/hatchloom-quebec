@@ -35,7 +35,7 @@ class BusinessModelCanvasTest extends TestCase
 
     // -------------------------------------------------------------------------
     // TC-Q2-002  HL-BMC-Update
-    // PUT /api/sidehustles/{id}/bmc → sections persist correctly
+    // PUT /api/sidehustles/{id}/bmc, sections persist correctly
     // -------------------------------------------------------------------------
 
     public function test_user_can_update_bmc_sections(): void

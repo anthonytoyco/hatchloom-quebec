@@ -36,7 +36,7 @@ class PositionTest extends TestCase
 
     // -------------------------------------------------------------------------
     // TC-Q2-003  HL-Create-Open-Position
-    // POST /api/positions → 201, status defaults to OPEN, has_open_positions synced
+    // POST /api/positions, 201, status defaults to OPEN, has_open_positions synced
     // -------------------------------------------------------------------------
 
     public function test_user_can_create_open_position(): void

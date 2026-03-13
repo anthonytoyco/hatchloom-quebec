@@ -1,5 +1,7 @@
 # Hatchloom
 
+SEE DOCS FOLDER
+
 ## Requirements
 
 - [Docker](https://www.docker.com/products/docker-desktop/) (with Docker Compose)
