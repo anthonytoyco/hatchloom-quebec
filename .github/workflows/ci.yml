@@ -48,11 +48,11 @@ jobs:
 
       - name: Set environment variables for testing
         run: |
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=testing/' .env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=sail/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=password/' .env
           php artisan key:generate
-          echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=5432" >> .env
-          echo "DB_USERNAME=sail" >> .env
-          echo "DB_PASSWORD=password" >> .env
 
       - name: Run database migrations
         run: php artisan migrate --force
