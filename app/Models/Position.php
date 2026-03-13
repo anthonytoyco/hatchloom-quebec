@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Position extends Model
 {
@@ -19,5 +20,10 @@ class Position extends Model
     public function sideHustle()
     {
         return $this->belongsTo(SideHustle::class);
+    }
+
+    public function classifiedPost(): HasOne
+    {
+        return $this->hasOne(ClassifiedPost::class);
     }
 }
