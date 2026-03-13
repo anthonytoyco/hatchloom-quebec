@@ -1,13 +1,13 @@
 services:
   app:
-    image: hatchloom-app:latest
+    image: hatchloom-launchpad:latest
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      APP_NAME: Hatchloom
+      APP_NAME: Hatchloom-LaunchPad
       APP_ENV: production
       APP_DEBUG: false
       APP_KEY: ${APP_KEY}
