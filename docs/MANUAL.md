@@ -31,7 +31,7 @@ This manual covers everything needed to install, configure, run, and deploy the 
 | Docker Desktop | 4.x | Required for Laravel Sail |
 | Docker Compose | v2.x | Bundled with Docker Desktop |
 | Git | 2.x | For cloning the repository |
-| PHP | 8.2 | Only needed to run `composer install` outside Sail |
+| PHP | 8.4 | Only needed to run `composer install` outside Sail |
 | Composer | 2.x | Only needed to install Sail before first run |
 
 > **Note:** Sail runs PHP 8.2, PostgreSQL 18, and all other dependencies inside Docker containers. You do **not** need PHP or PostgreSQL installed on your host machine if you bootstrap via Sail.
