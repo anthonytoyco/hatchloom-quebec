@@ -5,14 +5,8 @@ use App\Http\Controllers\SandboxController;
 use App\Http\Controllers\SideHustleController;
 use App\Http\Controllers\BusinessModelCanvasController;
 use App\Http\Controllers\TeamController;
-use App\Http\Controllers\ClassifiedPostController;
-use App\Http\Controllers\FeedController;
-use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PositionController;
 
-// ==============================
-// LAUNCHPAD ROUTES (auth required)
-// ==============================
 Route::middleware('auth:sanctum')->group(function () {
 
     // LaunchPad Home aggregation (Screen 200)
@@ -57,28 +51,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('{id}', [PositionController::class, 'update']);            // Update a position
         Route::delete('{id}', [PositionController::class, 'destroy']);        // Delete a position
     });
-});
-
-// ==============================
-// CONNECTHUB ROUTES (auth required)
-// ==============================
-Route::middleware('auth:sanctum')->group(function () {
-
-    // Feed
-    Route::get('/feed', [FeedController::class, 'index']);                          // Get feed (newest first)
-    Route::post('/feed', [FeedController::class, 'store']);                         // Create feed post
-    Route::post('/feed/{feedItem}/like', [FeedController::class, 'like']);          // Like a post
-    Route::post('/feed/{feedItem}/comment', [FeedController::class, 'comment']);    // Comment on a post
-
-    // Classifieds
-    Route::get('/classifieds', [ClassifiedPostController::class, 'index']);                             // List classifieds (optional ?status= filter)
-    Route::post('/classifieds', [ClassifiedPostController::class, 'store']);                            // Create classified post
-    Route::get('/classifieds/{classifiedPost}', [ClassifiedPostController::class, 'show']);             // Get single classified
-    Route::patch('/classifieds/{classifiedPost}/status', [ClassifiedPostController::class, 'updateStatus']); // Update status
-
-    // Messaging
-    Route::get('/threads', [MessageController::class, 'indexThreads']);                         // List user's threads
-    Route::post('/threads', [MessageController::class, 'storeThread']);                         // Create thread
-    Route::get('/threads/{thread}/messages', [MessageController::class, 'indexMessages']);      // Get messages in thread
-    Route::post('/threads/{thread}/messages', [MessageController::class, 'storeMessage']);      // Send message
 });

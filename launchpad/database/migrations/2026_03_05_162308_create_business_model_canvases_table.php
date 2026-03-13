@@ -1,0 +1,42 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('business_model_canvases', function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignId('side_hustle_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->text('key_partners')->nullable();
+            $table->text('key_activities')->nullable();
+            $table->text('key_resources')->nullable();
+            $table->text('value_propositions')->nullable();
+            $table->text('customer_relationships')->nullable();
+            $table->text('channels')->nullable();
+            $table->text('customer_segments')->nullable();
+            $table->text('cost_structure')->nullable();
+            $table->text('revenue_streams')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('business_model_canvases');
+    }
+};
