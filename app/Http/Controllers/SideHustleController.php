@@ -26,7 +26,7 @@ class SideHustleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'student_id' => 'required|uuid',
+            'student_id' => 'required|integer|exists:users,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);

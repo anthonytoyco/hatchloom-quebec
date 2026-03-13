@@ -13,7 +13,7 @@ class TeamMember extends Model
         'team_id',
         'student_id',
         'role',
-        'joinedAt'
+        'joined_at'
     ];
 
     public function team()

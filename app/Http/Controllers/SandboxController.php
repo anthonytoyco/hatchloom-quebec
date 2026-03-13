@@ -17,7 +17,7 @@ class SandboxController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'student_id' => 'required|uuid',
+            'student_id' => 'required|integer|exists:users,id',
             'title' => 'required|string',
             'description' => 'nullable|string',
         ]);

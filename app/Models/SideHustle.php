@@ -12,10 +12,11 @@ class SideHustle extends Model
 
     protected $fillable = [
         'student_id',
+        'sandbox_id',
         'title',
         'description',
         'status',
-        'hasOpenPositions'
+        'has_open_positions',
     ];
 
     public function sandbox()

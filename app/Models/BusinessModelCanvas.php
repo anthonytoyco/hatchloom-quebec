@@ -11,15 +11,15 @@ class BusinessModelCanvas extends Model
 
     protected $fillable = [
         'side_hustle_id',
-        'keyPartners',
-        'keyActivities',
-        'keyResources',
-        'valuePropositions',
-        'customerRelationships',
+        'key_partners',
+        'key_activities',
+        'key_resources',
+        'value_propositions',
+        'customer_relationships',
         'channels',
-        'customerSegments',
-        'costStructure',
-        'revenueStreams'
+        'customer_segments',
+        'cost_structure',
+        'revenue_streams',
     ];
 
     public function sideHustle()

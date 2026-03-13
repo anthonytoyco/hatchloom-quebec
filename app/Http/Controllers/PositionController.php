@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Position;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PositionController extends Controller
 {
@@ -16,11 +17,13 @@ class PositionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'side_hustle_id' => 'required|uuid',
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'status' => 'required|string',
+            'side_hustle_id' => 'required|integer|exists:side_hustles,id',
+            'title'          => 'required|string',
+            'description'    => 'nullable|string',
+            'status'         => ['sometimes', Rule::in(['OPEN', 'FILLED', 'CLOSED'])],
         ]);
+
+        $data['status'] = $data['status'] ?? 'OPEN';
 
         $position = Position::create($data);
         return response()->json($position, 201);
@@ -31,9 +34,9 @@ class PositionController extends Controller
         $position = Position::findOrFail($id);
 
         $data = $request->validate([
-            'title' => 'sometimes|required|string',
+            'title'       => 'sometimes|required|string',
             'description' => 'sometimes|nullable|string',
-            'status' => 'sometimes|required|string',
+            'status'      => ['sometimes', 'required', Rule::in(['OPEN', 'FILLED', 'CLOSED'])],
         ]);
 
         $position->update($data);

@@ -11,7 +11,6 @@ class Team extends Model
 
     protected $fillable = [
         'side_hustle_id',
-        'createdAt'
     ];
 
     public function sideHustle()

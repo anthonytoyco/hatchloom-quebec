@@ -18,15 +18,15 @@ class BusinessModelCanvasController extends Controller
         $bmc = SideHustle::findOrFail($sideHustleId)->bmc;
 
         $data = $request->validate([
-            'keyPartners' => 'nullable|string',
-            'keyActivities' => 'nullable|string',
-            'keyResources' => 'nullable|string',
-            'valuePropositions' => 'nullable|string',
-            'customerRelationships' => 'nullable|string',
-            'channels' => 'nullable|string',
-            'customerSegments' => 'nullable|string',
-            'costStructure' => 'nullable|string',
-            'revenueStreams' => 'nullable|string',
+            'key_partners'           => 'nullable|string',
+            'key_activities'         => 'nullable|string',
+            'key_resources'          => 'nullable|string',
+            'value_propositions'     => 'nullable|string',
+            'customer_relationships' => 'nullable|string',
+            'channels'               => 'nullable|string',
+            'customer_segments'      => 'nullable|string',
+            'cost_structure'         => 'nullable|string',
+            'revenue_streams'        => 'nullable|string',
         ]);
 
         $bmc->update($data);

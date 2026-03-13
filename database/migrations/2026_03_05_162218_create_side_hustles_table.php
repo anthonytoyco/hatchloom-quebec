@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('side_hustles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('student_id');
+            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('sandbox_id')->nullable()->constrained('sandboxes')->nullOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['IN_THE_LAB', 'LIVE_VENTURE'])->default('IN_THE_LAB');
+            $table->boolean('has_open_positions')->default(false);
             $table->timestamps();
         });
     }

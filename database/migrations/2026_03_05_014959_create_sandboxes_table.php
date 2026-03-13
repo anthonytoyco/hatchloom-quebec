@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('sandboxes', function (Blueprint $table) {
             $table->id();
-            $table->uuid('student_id');
+            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamps();
