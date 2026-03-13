@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\ConnectHub;
 
+use App\Events\MessageSent;
 use App\Models\Message;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -186,6 +188,32 @@ class MessageTest extends TestCase
             ]);
 
         $response->assertStatus(403);
+    }
+
+    // -------------------------------------------------------------------------
+    // Observer pattern — MessageSent event must be dispatched on storeMessage
+    // (design doc p. 15–16: Event Notifier dispatches on message send)
+    // -------------------------------------------------------------------------
+
+    public function test_message_sent_event_is_dispatched_on_store(): void
+    {
+        Event::fake([MessageSent::class]);
+
+        $sender    = User::factory()->create();
+        $recipient = User::factory()->create();
+
+        $thread = Thread::create([]);
+        $thread->participants()->attach([$sender->id, $recipient->id]);
+
+        $this->actingAs($sender, 'sanctum')
+            ->postJson("/api/threads/{$thread->id}/messages", [
+                'content' => 'Event dispatch test.',
+            ]);
+
+        Event::assertDispatched(MessageSent::class, function ($event) use ($sender, $thread) {
+            return $event->message->sender_id === $sender->id
+                && $event->message->thread_id === $thread->id;
+        });
     }
 
     // -------------------------------------------------------------------------
