@@ -19,7 +19,7 @@ class TeamController extends Controller
         $team = Team::findOrFail($teamId);
 
         $data = $request->validate([
-            'student_id' => 'required|uuid',
+            'student_id' => 'required|integer|exists:users,id',
             'role' => 'required|string',
         ]);
 

@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->uuid('student_id');
+            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->string('role')->nullable();
             $table->timestamp('joined_at')->nullable();
 

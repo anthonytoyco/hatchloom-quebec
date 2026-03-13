@@ -19,6 +19,10 @@ class SideHustle extends Model
         'has_open_positions',
     ];
 
+    protected $casts = [
+        'has_open_positions' => 'boolean',
+    ];
+
     public function sandbox()
     {
         return $this->belongsTo(Sandbox::class);
