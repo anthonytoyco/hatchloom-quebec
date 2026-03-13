@@ -41,9 +41,13 @@ class SideHustleController extends Controller
         return response()->json($sideHustle->load(['bmc', 'team', 'positions']), 201);
     }
 
-    public function createFromSandbox($sandboxId)
+    public function createFromSandbox(Request $request, $sandboxId)
     {
         $sandbox = Sandbox::findOrFail($sandboxId);
+
+        if ($sandbox->student_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         $sideHustle = SideHustle::create([
             'sandbox_id' => $sandbox->id,

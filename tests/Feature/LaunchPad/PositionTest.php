@@ -207,6 +207,20 @@ class PositionTest extends TestCase
             ->assertJsonCount(3);
     }
 
+    public function test_non_owner_cannot_create_position_for_others_sidehustle(): void
+    {
+        $owner      = User::factory()->create();
+        $other      = User::factory()->create();
+        $sideHustle = $this->createSideHustleFor($owner);
+
+        $this->actingAs($other, 'sanctum')
+            ->postJson('/api/positions', [
+                'side_hustle_id' => $sideHustle->id,
+                'title'          => 'Hijacked Position',
+            ])
+            ->assertStatus(403);
+    }
+
     // -------------------------------------------------------------------------
     // Ownership guards
     // -------------------------------------------------------------------------

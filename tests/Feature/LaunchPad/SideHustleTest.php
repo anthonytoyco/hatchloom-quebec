@@ -130,6 +130,17 @@ class SideHustleTest extends TestCase
         ]);
     }
 
+    public function test_user_cannot_launch_another_users_sandbox(): void
+    {
+        $owner   = User::factory()->create();
+        $other   = User::factory()->create();
+        $sandbox = Sandbox::factory()->create(['student_id' => $owner->id]);
+
+        $this->actingAs($other, 'sanctum')
+            ->postJson("/api/sandboxes/{$sandbox->id}/launch")
+            ->assertStatus(403);
+    }
+
     // -------------------------------------------------------------------------
     // TC-Q2-004  HL-LaunchPad-Summary
     // GET /api/launchpad/summary → correct counts for auth'd student

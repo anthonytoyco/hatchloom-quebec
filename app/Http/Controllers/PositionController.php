@@ -24,6 +24,12 @@ class PositionController extends Controller
             'status'         => ['sometimes', Rule::in(['OPEN', 'FILLED', 'CLOSED'])],
         ]);
 
+        $sideHustle = SideHustle::findOrFail($data['side_hustle_id']);
+
+        if ($sideHustle->student_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $data['status'] = $data['status'] ?? 'OPEN';
 
         $position = Position::create($data);
