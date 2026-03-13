@@ -9,7 +9,7 @@ class SandboxController extends Controller
 {
     public function index(Request $request)
     {
-        $studentId = $request->query('student_id');
+        $studentId = (int) $request->query('student_id');
         $sandboxes = Sandbox::when($studentId, fn($q) => $q->where('student_id', $studentId))->get();
         return response()->json($sandboxes);
     }
