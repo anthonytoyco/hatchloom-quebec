@@ -1,10 +1,10 @@
-# ConnectHub Service — Installation and Operations Manual
+# LaunchPad Service — Installation and Operations Manual
 
-**Project:** Hatchloom — Team Quebec (Q3)
+**Project:** Hatchloom — Team Quebec (Q2)
 **Version:** 1.0.0
 **Last updated:** 2026-03-13
 
-This manual covers everything needed to install, configure, run, and deploy the ConnectHub service on a new machine. Follow each section in order on a fresh system.
+This manual covers everything needed to install, configure, run, and deploy the LaunchPad service on a new machine. Follow each section in order on a fresh system.
 
 ---
 
@@ -31,7 +31,7 @@ This manual covers everything needed to install, configure, run, and deploy the 
 | Docker Desktop | 4.x | Required for Laravel Sail |
 | Docker Compose | v2.x | Bundled with Docker Desktop |
 | Git | 2.x | For cloning the repository |
-| PHP | 8.4 | Only needed to run `composer install` outside Sail |
+| PHP | 8.2 | Only needed to run `composer install` outside Sail |
 | Composer | 2.x | Only needed to install Sail before first run |
 
 > **Note:** Sail runs PHP 8.2, PostgreSQL 18, and all other dependencies inside Docker containers. You do **not** need PHP or PostgreSQL installed on your host machine if you bootstrap via Sail.
@@ -138,23 +138,23 @@ This writes `APP_KEY=base64:...` into your `.env` file.
 ./vendor/bin/sail artisan migrate
 ```
 
-This creates all 12 tables (6 from Q1/Q2, 6 from Q3 ConnectHub). Expected output:
+This creates all LaunchPad tables (plus Q1 Auth tables). Expected output includes:
 
 ```
   INFO  Running migrations.
 
-  2026_03_13_000001_create_feed_items_table ............ 12ms DONE
-  2026_03_13_000002_create_feed_actions_table .......... 10ms DONE
-  2026_03_13_000003_create_classified_posts_table ...... 11ms DONE
-  2026_03_13_000004_create_threads_table ............... 9ms  DONE
-  2026_03_13_000005_create_thread_participants_table ... 10ms DONE
-  2026_03_13_000006_create_messages_table .............. 9ms  DONE
+  2026_03_05_014959_create_sandboxes_table ........................... 10ms DONE
+  2026_03_05_162218_create_side_hustles_table ........................ 11ms DONE
+  2026_03_05_162308_create_business_model_canvases_table ............. 9ms  DONE
+  2026_03_05_162322_create_teams_table ............................... 8ms  DONE
+  2026_03_05_162334_create_team_members_table ........................ 9ms  DONE
+  2026_03_05_162350_create_positions_table ........................... 10ms DONE
 ```
 
 ### 4.5 Verify the service is running
 
 ```bash
-curl http://localhost/api/feed
+curl http://localhost/api/launchpad/summary
 ```
 
 Expected response (unauthenticated):
@@ -196,26 +196,27 @@ Expected output:
   Duration: ~3s
 ```
 
-### 5.2 Run only ConnectHub tests
+### 5.2 Run only LaunchPad tests
 
 ```bash
-./vendor/bin/sail artisan test --filter=ConnectHub
+./vendor/bin/sail artisan test --filter=LaunchPad
 ```
 
-### 5.3 Run only unit tests (Factory pattern)
+### 5.3 Run a single LaunchPad test file
 
 ```bash
-./vendor/bin/sail artisan test --testsuite=Unit
+./vendor/bin/sail artisan test tests/Feature/LaunchPad/SideHustleTest.php
 ```
 
 ### 5.4 Test file locations
 
 | File | What it tests |
 |---|---|
-| `tests/Feature/ConnectHub/FeedTest.php` | Feed endpoints, Factory pattern, Observer event dispatch |
-| `tests/Feature/ConnectHub/ClassifiedPostTest.php` | Classified CRUD, lifecycle guards, ownership enforcement |
-| `tests/Feature/ConnectHub/MessageTest.php` | Thread creation, deduplication, participant guards, MessageSent event |
-| `tests/Unit/PostFactoryTest.php` | PostFactory and concrete factories in isolation |
+| `tests/Feature/LaunchPad/SandboxTest.php` | Sandbox CRUD, auth guard, `?student_id` filter, ownership 403s |
+| `tests/Feature/LaunchPad/SideHustleTest.php` | TC-Q2-001 (create + BMC/Team auto-create), TC-Q2-004 (summary counts + isolation), TC-Q2-006 (createFromSandbox), status validation, ownership 403s |
+| `tests/Feature/LaunchPad/BusinessModelCanvasTest.php` | TC-Q2-002 (partial and full 9-section update), GET, 404 on missing SideHustle, ownership 403 |
+| `tests/Feature/LaunchPad/TeamTest.php` | GET with members, add/remove member, ownership 403s |
+| `tests/Feature/LaunchPad/PositionTest.php` | TC-Q2-003 (create + `has_open_positions` sync), TC-Q2-005 (flag sync on FILLED/CLOSED, multi-position flag retention), TC-Q2-007 (unauthenticated 401), terminal state transition 422s |
 
 ---
 
@@ -288,7 +289,7 @@ This will:
 
 ```bash
 # Health check — should return 401 (API is live, Sanctum blocking unauthenticated)
-curl http://localhost:8080/api/feed
+curl http://localhost:8080/api/launchpad/summary
 
 # Check container logs
 docker compose -f docker-compose.prod.yml logs app
@@ -370,34 +371,53 @@ curl -X POST http://localhost/api/login \
   -d '{"email":"user@example.com","password":"secret"}'
 ```
 
-### Feed
+### Sandbox
 
 | Method | URL | Description |
 |---|---|---|
-| `GET` | `/api/feed` | Get all posts, newest first |
-| `POST` | `/api/feed` | Create a post (`type`: share / announcement / achievement) |
-| `POST` | `/api/feed/{id}/like` | Like a post |
-| `POST` | `/api/feed/{id}/comment` | Comment on a post |
+| `GET` | `/api/sandboxes` | List sandboxes (`?student_id=` optional filter) |
+| `POST` | `/api/sandboxes` | Create a sandbox |
+| `GET` | `/api/sandboxes/{id}` | Get a single sandbox |
+| `PUT` | `/api/sandboxes/{id}` | Update sandbox (owner only) |
+| `DELETE` | `/api/sandboxes/{id}` | Delete sandbox (owner only) |
+| `POST` | `/api/sandboxes/{id}/launch` | Promote sandbox to SideHustle (owner only) |
 
-### Classifieds
-
-| Method | URL | Description |
-|---|---|---|
-| `GET` | `/api/classifieds` | List classifieds (`?status=OPEN\|FILLED\|CLOSED`) |
-| `POST` | `/api/classifieds` | Create a classified (must own the position's SideHustle) |
-| `GET` | `/api/classifieds/{id}` | Get single classified |
-| `PATCH` | `/api/classifieds/{id}/status` | Update status (owner only; `OPEN→FILLED` or `OPEN→CLOSED`) |
-
-### Messaging
+### SideHustle
 
 | Method | URL | Description |
 |---|---|---|
-| `GET` | `/api/threads` | List your threads |
-| `POST` | `/api/threads` | Start a thread with a recipient |
-| `GET` | `/api/threads/{id}/messages` | Get messages (participants only) |
-| `POST` | `/api/threads/{id}/messages` | Send a message (participants only) |
+| `GET` | `/api/launchpad/summary` | Aggregated counts + SideHustles for authenticated user |
+| `GET` | `/api/sidehustles` | List SideHustles (`?student_id=` optional filter) |
+| `POST` | `/api/sidehustles` | Create a SideHustle (auto-creates BMC + Team) |
+| `GET` | `/api/sidehustles/{id}` | Get SideHustle with BMC, Team, and Positions |
+| `PUT` | `/api/sidehustles/{id}` | Update SideHustle (owner only) |
+| `DELETE` | `/api/sidehustles/{id}` | Delete SideHustle and all related records (owner only) |
 
-For full request/response schemas see [`docs/API_DOCUMENTATION.md`](API_DOCUMENTATION.md).
+### Business Model Canvas
+
+| Method | URL | Description |
+|---|---|---|
+| `GET` | `/api/sidehustles/{id}/bmc` | Get BMC for a SideHustle |
+| `PUT` | `/api/sidehustles/{id}/bmc` | Update one or more BMC sections (owner only) |
+
+### Team
+
+| Method | URL | Description |
+|---|---|---|
+| `GET` | `/api/teams/{sideHustleId}` | Get team and member list for a SideHustle |
+| `POST` | `/api/teams/{teamId}/members` | Add a member to a team (owner only) |
+| `DELETE` | `/api/teams/{teamId}/members/{memberId}` | Remove a member from a team (owner only) |
+
+### Positions
+
+| Method | URL | Description |
+|---|---|---|
+| `GET` | `/api/positions/{sideHustleId}` | List all positions for a SideHustle |
+| `POST` | `/api/positions` | Create a position (owner only; status defaults to `OPEN`) |
+| `PUT` | `/api/positions/{id}` | Update position (owner only; `FILLED`/`CLOSED` are terminal) |
+| `DELETE` | `/api/positions/{id}` | Delete position (owner only) |
+
+For full request/response schemas see [`docs/LAUNCHPAD_API_DOCUMENTATION.md`](LAUNCHPAD_API_DOCUMENTATION.md).
 
 ---
 
@@ -463,13 +483,33 @@ docker compose -f docker-compose.prod.yml ps
 
 ---
 
-### `401 Unauthenticated` on every ConnectHub request
+### `401 Unauthenticated` on every LaunchPad request
 
 This is expected for unauthenticated requests — the API is working correctly. To make authenticated requests:
 
 1. Register a user via `POST /register` (Auth service)
 2. Log in via `POST /login` to receive a bearer token
-3. Include `Authorization: Bearer {token}` on every ConnectHub request
+3. Include `Authorization: Bearer {token}` on every LaunchPad request
+
+---
+
+### `403 Forbidden` on update or delete
+
+**Symptom:** A mutating request returns `{ "message": "Forbidden." }` or a similar ownership error.
+
+**Cause:** The authenticated user does not own the resource being modified. LaunchPad enforces ownership on every write operation by comparing the resource's `student_id` (or the parent SideHustle's `student_id`) to the token holder's user ID.
+
+**Fix:** Confirm you are using the bearer token that belongs to the student who created the resource.
+
+---
+
+### Position status update returns 422
+
+**Symptom:** `PUT /api/positions/{id}` with a `status` change returns `422 Unprocessable Content`.
+
+**Cause:** The position is already in a terminal state (`FILLED` or `CLOSED`). LaunchPad enforces a one-way state machine — once a position leaves `OPEN` its status cannot be changed further.
+
+**Fix:** This is intentional behaviour. If the position needs to be re-opened, delete it and create a new one.
 
 ---
 
@@ -481,3 +521,16 @@ This is expected for unauthenticated requests — the API is working correctly. 
 ```bash
 ./vendor/bin/sail artisan test
 ```
+
+---
+
+### `POST /api/sidehustles/{id}/launch` returns 404
+
+**Symptom:** Launching a sandbox returns `404 Not Found`.
+
+**Cause:** The `{id}` in the URL does not match an existing sandbox, or it belongs to a different user.
+
+**Fix:**
+1. Confirm the sandbox exists: `GET /api/sandboxes/{id}`
+2. Confirm you are authenticated as the sandbox owner
+3. If the sandbox was deleted, create a new one before launching
