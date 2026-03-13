@@ -26,9 +26,6 @@ return new class extends Migration
             $table->text('content')->nullable();
 
             $table->timestamps();
-
-            // Prevents duplicate likes from the same user on the same post
-            $table->unique(['feed_item_id', 'user_id', 'action_type']);
         });
     }
 

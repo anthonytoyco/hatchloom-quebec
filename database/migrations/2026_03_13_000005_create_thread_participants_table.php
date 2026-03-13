@@ -22,7 +22,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->timestamp('created_at')->nullable();
+            $table->timestamps();
 
             // No duplicate participants in the same thread
             $table->unique(['thread_id', 'user_id']);
