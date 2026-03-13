@@ -47,7 +47,7 @@ class ClassifiedPostController extends Controller
         // The position must belong to a SideHustle owned by the authenticated user.
         $position = Position::with('sideHustle')->findOrFail($data['position_id']);
 
-        if ((string) $position->sideHustle->student_id !== (string) $request->user()->id) {
+        if ($position->sideHustle->student_id !== $request->user()->id) {
             return response()->json(['message' => 'Forbidden: position does not belong to your SideHustle.'], 403);
         }
 

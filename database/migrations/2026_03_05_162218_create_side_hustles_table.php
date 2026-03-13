@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('side_hustles', function (Blueprint $table) {
             $table->id();
-            $table->uuid('student_id');
+            $table->unsignedBigInteger('student_id');
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['IN_THE_LAB', 'LIVE_VENTURE'])->default('IN_THE_LAB');

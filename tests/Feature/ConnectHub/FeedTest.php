@@ -6,6 +6,7 @@ use App\Events\FeedPostCreated;
 use App\Models\FeedItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
@@ -117,16 +118,20 @@ class FeedTest extends TestCase
         $user = User::factory()->create();
 
         $older = FeedItem::create([
-            'user_id' => $user->id,
-            'type'    => 'share',
-            'content' => 'Older post',
+            'user_id'  => $user->id,
+            'type'     => 'share',
+            'content'  => 'Older post',
             'metadata' => ['shareLink' => 'https://old.com'],
         ]);
 
+        // Backdate via DB so created_at is genuinely earlier (Eloquent manages
+        // timestamps automatically and ignores them in create/fill).
+        DB::table('feed_items')->where('id', $older->id)->update(['created_at' => now()->subMinute()]);
+
         $newer = FeedItem::create([
-            'user_id' => $user->id,
-            'type'    => 'share',
-            'content' => 'Newer post',
+            'user_id'  => $user->id,
+            'type'     => 'share',
+            'content'  => 'Newer post',
             'metadata' => ['shareLink' => 'https://new.com'],
         ]);
 
