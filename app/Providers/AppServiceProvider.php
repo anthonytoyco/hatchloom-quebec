@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\FeedPostCreated;
+use App\Listeners\NotifyFeedObservers;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,5 +24,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Observer pattern: FeedPostCreated → NotifyFeedObservers
+        // Maps to PostFeed (subject) notifying UserFeed + NotificationService (observers)
+        Event::listen(FeedPostCreated::class, NotifyFeedObservers::class);
     }
 }
